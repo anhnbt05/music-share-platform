@@ -1,4 +1,4 @@
-package com.example.hihi;
+package com.example.musicshareserver.auth;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
