@@ -6,8 +6,12 @@ COPY . .
 
 RUN apk add --no-cache bash
 
-RUN chmod +x ./gradlew && ./gradlew clean build -x test
+RUN chmod +x ./gradlew
+
+RUN ./gradlew clean build -x test --info
+
+RUN cp build/libs/*.jar app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "-Dserver.port=8080", "build/libs/musicshareserver-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "-Dserver.port=8080", "app.jar"]
