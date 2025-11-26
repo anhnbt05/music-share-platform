@@ -1,17 +1,35 @@
-FROM eclipse-temurin:21-jdk-alpine
+# ----------------------------------------------------------------------------------------------------------------------
+# Build Stage: Compile Spring Boot app với Gradle
+# ----------------------------------------------------------------------------------------------------------------------
+FROM gradle:8.7-jdk21-alpine AS build
+WORKDIR /build
 
-WORKDIR /app
+# Copy gradle files first (caching layer)
+COPY build.gradle .
+COPY settings.gradle .
+COPY gradlew .
+COPY gradle/wrapper gradle/wrapper
 
-COPY . .
+# Download dependencies (caching)
+RUN chmod +x ./gradlew && ./gradlew dependencies --no-daemon
 
-RUN apk add --no-cache bash
+# Copy source code và build JAR
+COPY src ./src
+RUN ./gradlew clean bootJar -x test --no-daemon
 
-RUN chmod +x ./gradlew
-
-RUN ./gradlew clean build -x test --info
-
-RUN cp build/libs/*.jar app.jar
-
+# ----------------------------------------------------------------------------------------------------------------------
+# Runtime Stage: lightweight container
+# ----------------------------------------------------------------------------------------------------------------------
+FROM eclipse-temurin:21-jre-alpine
 EXPOSE 8080
 
-CMD ["java", "-jar", "-Dserver.port=8080", "app.jar"]
+ARG PROFILE=prod
+WORKDIR /app
+
+# Copy built JAR từ build stage
+COPY --from=build /build/build/libs/*.jar app.jar
+
+# Application profile
+ENV ACTIVE_PROFILE=${PROFILE}
+
+CMD ["java", "-Dspring.profiles.active=${ACTIVE_PROFILE}", "-jar", "app.jar"]
