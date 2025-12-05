@@ -1,12 +1,12 @@
-package com.example.musicshareserver.auth;
+package com.example.musicshareserver.modules.auth;
 
-import com.example.musicshareserver.auth.dto.AuthResponse;
-import com.example.musicshareserver.auth.dto.LoginRequest;
-import com.example.musicshareserver.auth.dto.RegisterRequest;
+import com.example.musicshareserver.modules.auth.dto.AuthResponse;
+import com.example.musicshareserver.modules.auth.dto.LoginRequest;
+import com.example.musicshareserver.modules.auth.dto.RegisterRequest;
 import com.example.musicshareserver.common.JwtService;
 import com.example.musicshareserver.entity.User;
-import com.example.musicshareserver.user.UserRepository;
-import com.example.musicshareserver.user.dto.UserDTO;
+import com.example.musicshareserver.modules.user.UserRepository;
+import com.example.musicshareserver.modules.user.dto.UserDTO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;

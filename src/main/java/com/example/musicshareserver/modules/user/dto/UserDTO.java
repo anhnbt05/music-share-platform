@@ -1,4 +1,4 @@
-package com.example.musicshareserver.user.dto;
+package com.example.musicshareserver.modules.user.dto;
 
 public class UserDTO {
     private Long id;

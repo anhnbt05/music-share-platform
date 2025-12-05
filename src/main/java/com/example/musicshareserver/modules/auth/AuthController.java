@@ -1,8 +1,8 @@
-package com.example.musicshareserver.auth;
+package com.example.musicshareserver.modules.auth;
 
-import com.example.musicshareserver.auth.dto.AuthResponse;
-import com.example.musicshareserver.auth.dto.LoginRequest;
-import com.example.musicshareserver.auth.dto.RegisterRequest;
+import com.example.musicshareserver.modules.auth.dto.AuthResponse;
+import com.example.musicshareserver.modules.auth.dto.LoginRequest;
+import com.example.musicshareserver.modules.auth.dto.RegisterRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
