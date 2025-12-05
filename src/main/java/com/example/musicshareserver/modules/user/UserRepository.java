@@ -1,5 +1,4 @@
-// repository/UserRepository.java
-package com.example.musicshareserver.user;
+package com.example.musicshareserver.modules.user;
 
 import com.example.musicshareserver.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;

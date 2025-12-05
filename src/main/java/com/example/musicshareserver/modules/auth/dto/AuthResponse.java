@@ -1,7 +1,7 @@
-package com.example.musicshareserver.auth.dto;
+package com.example.musicshareserver.modules.auth.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import com.example.musicshareserver.user.dto.UserDTO;
+import com.example.musicshareserver.modules.user.dto.UserDTO;
 
 @Schema(description = "Phản hồi xác thực")
 public class AuthResponse {
