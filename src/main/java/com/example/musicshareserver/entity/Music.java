@@ -1,87 +1,50 @@
 package com.example.musicshareserver.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "music")
+@Getter
+@Setter
 public class Music {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "artist_id", nullable = false)
-    private ArtistProfile artist;
-
-    @Column(nullable = false)
-    private String title;
-
-    private String genre;
-
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    @Column(name = "file_url", nullable = false)
-    private String fileUrl;
-
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "vote_count", nullable = false)
-    private Integer voteCount = 0;
+    private String description;
 
-    @OneToMany(mappedBy = "music", cascade = CascadeType.ALL)
-    private List<Vote> votes = new ArrayList<>();
+    @Column(length = 255)
+    private String fileUrl;
 
-    @OneToMany(mappedBy = "music", cascade = CascadeType.ALL)
-    private List<PlaylistTrack> playlistTracks = new ArrayList<>();
+    @Column(length = 255)
+    private String genre;
 
-    @OneToMany(mappedBy = "music", cascade = CascadeType.ALL)
-    private List<AlbumTrack> albumTracks = new ArrayList<>();
+    @Column(length = 255)
+    private String title;
 
-    @OneToMany(mappedBy = "music", cascade = CascadeType.ALL)
-    private List<MusicStat> musicStats = new ArrayList<>();
+    private Integer voteCount;
 
-    @OneToMany(mappedBy = "reportedMusic", cascade = CascadeType.ALL)
-    private List<Report> reports = new ArrayList<>();
+    private LocalDateTime deletedAt;
 
-    public Music() {
-        this.createdAt = LocalDateTime.now();
-    }
+    @ManyToOne
+    @JoinColumn(name = "artist_id")
+    private ArtistProfile artistProfile;
 
-    public Music(ArtistProfile artist, String title, String fileUrl) {
-        this();
-        this.artist = artist;
-        this.title = title;
-        this.fileUrl = fileUrl;
-    }
+    @OneToMany(mappedBy = "music")
+    private List<AlbumTrack> albumTracks;
 
-    public Long getId() { return id; }
-    public ArtistProfile getArtist() { return artist; }
-    public void setArtist(ArtistProfile artist) { this.artist = artist; }
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-    public String getGenre() { return genre; }
-    public void setGenre(String genre) { this.genre = genre; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    public String getFileUrl() { return fileUrl; }
-    public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public Integer getVoteCount() { return voteCount; }
-    public void setVoteCount(Integer voteCount) { this.voteCount = voteCount; }
-    public List<Vote> getVotes() { return votes; }
-    public void setVotes(List<Vote> votes) { this.votes = votes; }
-    public List<PlaylistTrack> getPlaylistTracks() { return playlistTracks; }
-    public void setPlaylistTracks(List<PlaylistTrack> playlistTracks) { this.playlistTracks = playlistTracks; }
-    public List<AlbumTrack> getAlbumTracks() { return albumTracks; }
-    public void setAlbumTracks(List<AlbumTrack> albumTracks) { this.albumTracks = albumTracks; }
-    public List<MusicStat> getMusicStats() { return musicStats; }
-    public void setMusicStats(List<MusicStat> musicStats) { this.musicStats = musicStats; }
-    public List<Report> getReports() { return reports; }
-    public void setReports(List<Report> reports) { this.reports = reports; }
+    @OneToMany(mappedBy = "music")
+    private List<MusicStat> musicStats;
+
+    @OneToMany(mappedBy = "music")
+    private List<Vote> votes;
 }
