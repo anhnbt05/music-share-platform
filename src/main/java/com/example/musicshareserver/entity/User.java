@@ -30,10 +30,10 @@ public class User {
     private LocalDateTime createdAt;
 
     @Builder.Default
-    private boolean isDeleted = false;
+    private Boolean isActive = false;
 
     @Builder.Default
-    private boolean isActive = false;
+    private Boolean isDeleted = false;
 
     private String role;
 

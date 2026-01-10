@@ -2,6 +2,7 @@ package com.example.musicshareserver.service;
 
 import com.example.musicshareserver.dto.request.*;
 import com.example.musicshareserver.dto.response.AuthResponse;
+import com.example.musicshareserver.exception.ApiException;
 
 public interface AuthService {
 
