@@ -1,77 +1,48 @@
 package com.example.musicshareserver.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "artist_profiles")
+@Getter
+@Setter
 public class ArtistProfile {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @Column(name = "stage_name")
-    private String stageName;
-
-    @Column(columnDefinition = "TEXT")
     private String bio;
 
-    @Column(name = "photo_url")
+    @Column(length = 255)
     private String photoUrl;
 
-    @Column(name = "social_links", columnDefinition = "TEXT")
-    private String socialLinks; // JSON string or comma-separated
+    private String socialLinks;
 
-    @Column(nullable = false)
-    private String status = "ACTIVE";
+    @Column(length = 255)
+    private String stageName;
 
-    @Column(name = "updated_at")
+    @Column(length = 255)
+    private String status;
+
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "artist", cascade = CascadeType.ALL)
-    private List<Music> musicList = new ArrayList<>();
+    @OneToOne
+    @JoinColumn(name = "user_id", unique = true)
+    private User user;
 
-    @OneToMany(mappedBy = "artist", cascade = CascadeType.ALL)
-    private List<Album> albums = new ArrayList<>();
+    @OneToMany(mappedBy = "artistProfile")
+    private List<Album> albums;
 
-    @OneToMany(mappedBy = "followedArtist", cascade = CascadeType.ALL)
-    private List<Follow> followers = new ArrayList<>();
+    @OneToMany(mappedBy = "artistProfile")
+    private List<Music> music;
 
-    public ArtistProfile() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public ArtistProfile(User user, String stageName) {
-        this();
-        this.user = user;
-        this.stageName = stageName;
-    }
-
-    public Long getId() { return id; }
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
-    public String getStageName() { return stageName; }
-    public void setStageName(String stageName) { this.stageName = stageName; }
-    public String getBio() { return bio; }
-    public void setBio(String bio) { this.bio = bio; }
-    public String getPhotoUrl() { return photoUrl; }
-    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
-    public String getSocialLinks() { return socialLinks; }
-    public void setSocialLinks(String socialLinks) { this.socialLinks = socialLinks; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-    public List<Music> getMusicList() { return musicList; }
-    public void setMusicList(List<Music> musicList) { this.musicList = musicList; }
-    public List<Album> getAlbums() { return albums; }
-    public void setAlbums(List<Album> albums) { this.albums = albums; }
-    public List<Follow> getFollowers() { return followers; }
-    public void setFollowers(List<Follow> followers) { this.followers = followers; }
+    @OneToMany(mappedBy = "artistProfile")
+    private List<Follow> follows;
 }
