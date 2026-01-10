@@ -1,8 +1,7 @@
 package com.example.musicshareserver.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,6 +11,9 @@ import java.util.List;
 @Table(name = "users")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
@@ -21,36 +23,35 @@ public class User {
     @Column(unique = true, length = 255)
     private String email;
 
-    @Column(length = 255)
     private String name;
 
-    @Column(length = 255)
     private String password;
 
     private LocalDateTime createdAt;
 
-    private Boolean isDeleted;
+    @Builder.Default
+    private boolean isDeleted = false;
 
-    private Boolean isActive = false;
+    @Builder.Default
+    private boolean isActive = false;
 
-    @Column(length = 255)
     private String role;
 
     @OneToMany(mappedBy = "user")
-    private List<ActivityLog> activityLogs;
+    private List<ActivityLog> activityLogs = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<ArtistApplication> artistApplications;
+    private List<ArtistApplication> artistApplications = new ArrayList<>();
 
     @OneToOne(mappedBy = "user")
     private ArtistProfile artistProfile;
 
     @OneToMany(mappedBy = "follower")
-    private List<Follow> follows;
+    private List<Follow> follows = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<Playlist> playlists;
+    private List<Playlist> playlists = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<Vote> votes;
+    private List<Vote> votes = new ArrayList<>();
 }

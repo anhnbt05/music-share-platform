@@ -24,3 +24,14 @@ spring:
       - http://localhost:3000
       - http://localhost:5173
       - https://music-share-platform.onrender.com
+  mail:
+    host: ${SMTP_HOST}
+    port: ${SMTP_PORT}
+    username: ${SMTP_USER}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
