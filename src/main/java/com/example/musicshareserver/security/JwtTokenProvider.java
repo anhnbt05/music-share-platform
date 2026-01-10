@@ -18,7 +18,6 @@ public class JwtTokenProvider {
     private static final long ACCESS_TOKEN_EXPIRE = 15 * 60 * 1000;
     private static final long REFRESH_TOKEN_EXPIRE = 7 * 24 * 60 * 60 * 1000;
 
-    /* ================= GENERATE TOKEN ================= */
 
     public String generateAccessToken(User user) {
         return Jwts.builder()
@@ -40,7 +39,6 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    /* ================= VALIDATE ================= */
 
     public boolean validateRefreshToken(String token) {
         try {
@@ -55,7 +53,6 @@ public class JwtTokenProvider {
         }
     }
 
-    /* ================= GET USER ID ================= */
 
     public Integer getUserIdFromRefreshToken(String token) {
         Claims claims = Jwts.parser()
@@ -66,7 +63,6 @@ public class JwtTokenProvider {
         return Integer.parseInt(claims.getSubject());
     }
 
-    /* ================= COMMON ================= */
 
     public Long getUserIdFromToken(String token) {
         return Long.parseLong(

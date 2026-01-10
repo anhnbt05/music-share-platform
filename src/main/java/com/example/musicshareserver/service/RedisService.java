@@ -21,7 +21,7 @@ public class RedisService {
     @Value("${REDIS_HOST}")
     private String host;
 
-    @Value("${redis.port:6379}")
+    @Value("${redis.port:19413}")
     private int port;
 
     @Value("${REDIS_USER}")

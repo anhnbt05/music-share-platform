@@ -23,7 +23,6 @@ public class AuthServiceImpl implements AuthService {
     private final RedisService redisService;
     private final MailService mailService;
 
-    /* ================= LOGIN ================= */
     @Override
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
@@ -33,8 +32,12 @@ public class AuthServiceImpl implements AuthService {
             throw new ApiException("Sai email hoặc mật khẩu");
         }
 
-        if (!user.isActive()) {
+        if (!Boolean.TRUE.equals(user.getIsActive())) {
             throw new ApiException("Tài khoản chưa xác minh OTP");
+        }
+
+        if (Boolean.TRUE.equals(user.getIsDeleted())) {
+            throw new ApiException("Tài khoản đã bị khóa");
         }
 
         String accessToken = jwtTokenProvider.generateAccessToken(user);
@@ -43,7 +46,6 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponse(accessToken, refreshToken);
     }
 
-    /* ================= REFRESH TOKEN ================= */
     @Override
     public AuthResponse refreshToken(String refreshToken) {
         if (!jwtTokenProvider.validateRefreshToken(refreshToken)) {
@@ -51,7 +53,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         Integer userId = jwtTokenProvider.getUserIdFromRefreshToken(refreshToken);
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApiException("User không tồn tại"));
 
@@ -61,85 +62,97 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponse(newAccessToken, newRefreshToken);
     }
 
-    /* ================= REGISTER ================= */
     @Override
     public void register(RegisterRequest request) {
+        String email = request.getEmail();
+        String password = request.getPassword();
+        String name = request.getName();
 
-        userRepository.findByEmail(request.getEmail())
-                .ifPresent(u -> {
-                    throw new ApiException("Email đã tồn tại");
-                });
+        String hashedPassword = bCryptUtil.hash(password);
 
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(bCryptUtil.hash(request.getPassword()))
-                .name(request.getName())
-                .role("USER")
-                .isActive(false)
-                .isDeleted(false)
-                .createdAt(LocalDateTime.now())
-                .build();
+        User user = userRepository.findByEmail(email).orElse(null);
 
-        userRepository.save(user);
+        if (user != null) {
+            if (Boolean.TRUE.equals(user.getIsActive())) {
+                throw new ApiException("Email đã tồn tại và đã kích hoạt.");
+            }
 
-        String otp = OtpUtil.generate();
+            user.setName(name);
+            user.setPassword(hashedPassword);
+            user.setIsActive(false);
+            user.setIsDeleted(false);
+            userRepository.save(user);
 
-        redisService.setEx(
-                "otp:register:" + user.getEmail(),
-                300,
-                bCryptUtil.hash(otp)
-        );
+        } else {
+            user = User.builder()
+                    .email(email)
+                    .password(hashedPassword)
+                    .name(name)
+                    .role("USER")
+                    .isActive(false)
+                    .isDeleted(false)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            userRepository.save(user);
+        }
+
+        String otp = String.valueOf((int) (100000 + Math.random() * 900000));
+        String hashedOtp = bCryptUtil.hash(otp);
+
+        redisService.setEx("otp:" + email, 300, hashedOtp);
+        redisService.setEx("otp_attempts:" + email, 300, "0");
 
         mailService.sendOtpEmail(
-                user.getEmail(),
+                email,
                 "Xác minh tài khoản",
                 otp,
-                user.getName(),
-                "Xác minh email",
-                "Xác minh email",
+                name,
+                "register",
+                "Xác minh tài khoản",
                 "Mã OTP để xác minh tài khoản của bạn là",
                 "Mã OTP này dùng để xác nhận email khi đăng ký tài khoản mới."
         );
     }
 
-    /* ================= VERIFY REGISTER OTP ================= */
     @Override
     public void verifyOtp(VerifyOtpRequest request) {
-
         String key = "otp:register:" + request.getEmail();
         String hashedOtp = redisService.get(key);
 
-        if (hashedOtp == null) {
-            throw new ApiException("OTP đã hết hạn");
+        if (hashedOtp == null) throw new ApiException("OTP đã hết hạn");
+
+        int attempts = Integer.parseInt(redisService.get("otp:register:attempts:" + request.getEmail()) != null
+                ? redisService.get("otp:register:attempts:" + request.getEmail())
+                : "0");
+
+        if (attempts >= 5) {
+            redisService.del(key, "otp:register:attempts:" + request.getEmail());
+            throw new ApiException("Bạn đã nhập sai OTP quá nhiều lần");
         }
 
         if (!bCryptUtil.matches(request.getOtp(), hashedOtp)) {
-            throw new ApiException("OTP không đúng");
+            redisService.setEx("otp:register:attempts:" + request.getEmail(), 300, String.valueOf(attempts + 1));
+            throw new ApiException("OTP không đúng (" + (attempts + 1) + "/5 lần)");
         }
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ApiException("User không tồn tại"));
 
-        user.setActive(true);
+        user.setIsActive(true);
         userRepository.save(user);
 
-        redisService.del(key);
+        redisService.del(key, "otp:register:attempts:" + request.getEmail());
     }
 
-    /* ================= FORGOT PASSWORD ================= */
     @Override
     public void forgotPassword(ForgotPasswordRequest request) {
-
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ApiException("Email không tồn tại"));
 
         String otp = OtpUtil.generate();
-
-        redisService.setEx(
-                "otp:reset:" + user.getEmail(),
-                300,
-                bCryptUtil.hash(otp)
-        );
+        redisService.setEx("otp:reset:" + user.getEmail(), 300, bCryptUtil.hash(otp));
+        redisService.setEx("otp:reset:attempts:" + user.getEmail(), 300, "0");
 
         mailService.sendOtpEmail(
                 user.getEmail(),
@@ -153,40 +166,37 @@ public class AuthServiceImpl implements AuthService {
         );
     }
 
-    /* ================= VERIFY RESET OTP ================= */
     @Override
     public void verifyResetOtp(VerifyResetOtpRequest request) {
-
         String key = "otp:reset:" + request.getEmail();
         String hashedOtp = redisService.get(key);
 
-        if (hashedOtp == null) {
-            throw new ApiException("OTP đã hết hạn");
+        if (hashedOtp == null) throw new ApiException("OTP đã hết hạn");
+
+        int attempts = Integer.parseInt(redisService.get("otp:reset:attempts:" + request.getEmail()) != null
+                ? redisService.get("otp:reset:attempts:" + request.getEmail())
+                : "0");
+
+        if (attempts >= 5) {
+            redisService.del(key, "otp:reset:attempts:" + request.getEmail());
+            throw new ApiException("Bạn đã nhập sai OTP quá nhiều lần");
         }
 
         if (!bCryptUtil.matches(request.getOtp(), hashedOtp)) {
-            throw new ApiException("OTP không đúng");
+            redisService.setEx("otp:reset:attempts:" + request.getEmail(), 300, String.valueOf(attempts + 1));
+            throw new ApiException("OTP không đúng (" + (attempts + 1) + "/5 lần)");
         }
 
-        redisService.setEx(
-                "otp:reset:verified:" + request.getEmail(),
-                300,
-                "true"
-        );
-
-        redisService.del(key);
+        redisService.setEx("otp:reset:verified:" + request.getEmail(), 600, "true");
+        redisService.del(key, "otp:reset:attempts:" + request.getEmail());
     }
 
-    /* ================= RESET PASSWORD ================= */
     @Override
     public void resetPassword(ResetPasswordRequest request) {
-
         String verifyKey = "otp:reset:verified:" + request.getEmail();
         String verified = redisService.get(verifyKey);
 
-        if (verified == null) {
-            throw new ApiException("Chưa xác minh OTP");
-        }
+        if (verified == null) throw new ApiException("Bạn chưa xác minh OTP");
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ApiException("User không tồn tại"));
@@ -197,3 +207,4 @@ public class AuthServiceImpl implements AuthService {
         redisService.del(verifyKey);
     }
 }
+
