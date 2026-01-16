@@ -1,11 +1,13 @@
-package com.example.musicshareserver.service;
+package com.example.musicshareserver.service.auth;
 
-import com.example.musicshareserver.dto.request.*;
+import com.example.musicshareserver.dto.request.auth.*;
 import com.example.musicshareserver.dto.response.AuthResponse;
 import com.example.musicshareserver.entity.User;
 import com.example.musicshareserver.exception.ApiException;
 import com.example.musicshareserver.repository.UserRepository;
 import com.example.musicshareserver.security.JwtTokenProvider;
+import com.example.musicshareserver.service.MailService;
+import com.example.musicshareserver.service.RedisService;
 import com.example.musicshareserver.util.BCryptUtil;
 import com.example.musicshareserver.util.OtpUtil;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,8 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtTokenProvider.generateAccessToken(user);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user);
 
+        System.out.println("ROLE IN TOKEN = " + user.getRole());
+
         return new AuthResponse(accessToken, refreshToken);
     }
 
@@ -52,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
             throw new ApiException("Refresh token không hợp lệ");
         }
 
-        Integer userId = jwtTokenProvider.getUserIdFromRefreshToken(refreshToken);
+        Long userId = jwtTokenProvider.getUserIdFromRefreshToken(refreshToken);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApiException("User không tồn tại"));
 

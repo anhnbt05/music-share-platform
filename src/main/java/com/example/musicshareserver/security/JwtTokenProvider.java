@@ -23,7 +23,7 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .setSubject(user.getId().toString())
                 .claim("email", user.getEmail())
-                .claim("role", user.getRole())
+                .claim("role", "ROLE_" + user.getRole())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRE))
                 .signWith(SignatureAlgorithm.HS256, secret)
@@ -54,13 +54,13 @@ public class JwtTokenProvider {
     }
 
 
-    public Integer getUserIdFromRefreshToken(String token) {
+    public Long getUserIdFromRefreshToken(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(secret)
                 .parseClaimsJws(token)
                 .getBody();
 
-        return Integer.parseInt(claims.getSubject());
+        return Long.parseLong(claims.getSubject());
     }
 
 
@@ -73,4 +73,12 @@ public class JwtTokenProvider {
                         .getSubject()
         );
     }
+
+    public Claims getClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(secret)
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
 }

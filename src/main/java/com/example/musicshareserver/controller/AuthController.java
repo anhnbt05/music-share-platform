@@ -1,9 +1,9 @@
 package com.example.musicshareserver.controller;
 
-import com.example.musicshareserver.dto.request.*;
+import com.example.musicshareserver.dto.request.auth.*;
 import com.example.musicshareserver.dto.response.ApiResponse;
 import com.example.musicshareserver.dto.response.AuthResponse;
-import com.example.musicshareserver.service.AuthService;
+import com.example.musicshareserver.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;

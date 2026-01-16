@@ -1,6 +1,7 @@
 package com.example.musicshareserver.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,6 +13,7 @@ import java.util.List;
 @Table(name = "artist_profiles")
 @Getter
 @Setter
+@Builder
 public class ArtistProfile {
 
     @Id
