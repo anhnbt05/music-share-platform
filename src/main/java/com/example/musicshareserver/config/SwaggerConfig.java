@@ -31,6 +31,7 @@ public class SwaggerConfig {
                 .servers(List.of(
                         new Server().url(serverUrl)
                 ))
+                .addSecurityItem(new io.swagger.v3.oas.models.security.SecurityRequirement().addList("bearerAuth"))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth",
                                 new SecurityScheme()

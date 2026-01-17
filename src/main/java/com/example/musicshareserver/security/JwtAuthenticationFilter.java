@@ -40,6 +40,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Long userId = Long.parseLong(claims.getSubject());
                 String role = claims.get("role", String.class);
 
+                // Fix: Robust handling of ROLE_ prefix
+                if (role != null) {
+                    role = "ROLE_" + role.replaceAll("^(ROLE_)+", "");
+                }
+
                 List<GrantedAuthority> authorities =
                         List.of(new SimpleGrantedAuthority(role));
 
