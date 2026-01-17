@@ -62,6 +62,7 @@ public class SecurityConfig {
                                 "/configuration/**"
                         ).permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/artist/**").hasRole("ARTIST")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
