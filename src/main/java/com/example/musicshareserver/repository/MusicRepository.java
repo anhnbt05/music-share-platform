@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface MusicRepository extends JpaRepository<Music, Long> {
+public interface MusicRepository extends JpaRepository<Music, Long>, org.springframework.data.jpa.repository.JpaSpecificationExecutor<Music> {
     
     List<Music> findByArtistProfileIdAndDeletedAtIsNull(Long artistId);
     
