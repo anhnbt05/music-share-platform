@@ -1,14 +1,13 @@
 package com.example.musicshareserver.service.storage;
 
+import com.example.musicshareserver.client.SupabaseStorageClient;
 import com.example.musicshareserver.common.dto.UploadOptions;
 import com.example.musicshareserver.common.dto.UploadResult;
 import com.example.musicshareserver.exception.ApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.URL;
 import java.util.List;
@@ -25,7 +24,7 @@ public class StorageServiceImpl implements StorageService {
     @Value("${SUPABASE_SERVICE_ROLE_KEY}")
     private String serviceRoleKey;
 
-    private final WebClient webClient;
+    private final SupabaseStorageClient supabaseClient;
 
     @Override
     public UploadResult uploadFile(MultipartFile file, UploadOptions options) {
@@ -40,25 +39,21 @@ public class StorageServiceImpl implements StorageService {
                     + "-" + UUID.randomUUID()
                     + "." + ext;
 
-            String uploadUrl = supabaseUrl
-                    + "/storage/v1/object/"
-                    + options.getBucket()
-                    + "/" + fileName;
+            String bucket = options.getBucket();
 
-            // UPLOAD FILE
-            webClient.post()
-                    .uri(uploadUrl)
-                    .header("Authorization", "Bearer " + serviceRoleKey)
-                    .contentType(MediaType.parseMediaType(file.getContentType()))
-                    .bodyValue(file.getBytes())
-                    .retrieve()
-                    .toBodilessEntity()
-                    .block();
+            // Upload using Feign
+            supabaseClient.uploadFile(
+                    "Bearer " + serviceRoleKey,
+                    bucket,
+                    fileName,
+                    file.getContentType(),
+                    file.getBytes()
+            );
 
             // PUBLIC URL
             String publicUrl = supabaseUrl
                     + "/storage/v1/object/public/"
-                    + options.getBucket()
+                    + bucket
                     + "/" + fileName;
 
             return new UploadResult(publicUrl, fileName);
@@ -88,18 +83,11 @@ public class StorageServiceImpl implements StorageService {
     @Override
     public boolean deleteFileByPath(String bucket, String filePath) {
         try {
-            String deleteUrl = supabaseUrl
-                    + "/storage/v1/object/"
-                    + bucket
-                    + "/" + filePath;
-
-            webClient.delete()
-                    .uri(deleteUrl)
-                    .header("Authorization", "Bearer " + serviceRoleKey)
-                    .retrieve()
-                    .toBodilessEntity()
-                    .block();
-
+            supabaseClient.deleteFile(
+                    "Bearer " + serviceRoleKey,
+                    bucket,
+                    filePath
+            );
             return true;
         } catch (Exception e) {
             return false;
