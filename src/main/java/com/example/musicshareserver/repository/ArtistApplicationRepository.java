@@ -11,4 +11,6 @@ public interface ArtistApplicationRepository
         extends JpaRepository<ArtistApplication, Long> {
 
     Page<ArtistApplication> findByStatus(String status, Pageable pageable);
+
+    java.util.Optional<ArtistApplication> findByUserIdAndStatusIn(Long userId, java.util.Collection<String> statuses);
 }
