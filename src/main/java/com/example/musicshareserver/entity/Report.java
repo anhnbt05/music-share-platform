@@ -44,6 +44,10 @@ public class Report {
     @JoinColumn(name = "reported_user_id")
     private User reportedUser;
 
+    @ManyToOne
+    @JoinColumn(name = "reported_playlist_id")
+    private Playlist reportedPlaylist;
+
     /* ===== Reporter ===== */
 
     @ManyToOne(optional = false)
