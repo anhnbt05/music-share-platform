@@ -53,4 +53,5 @@ jobs:
         SMTP_PORT: 1025
         SMTP_USER: user
         SMTP_PASSWORD: password
+        SUPABASE_URL: http://localhost:8000
       run: mvn clean verify
