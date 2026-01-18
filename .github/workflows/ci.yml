@@ -54,4 +54,11 @@ jobs:
         SMTP_USER: user
         SMTP_PASSWORD: password
         SUPABASE_URL: http://localhost:8000
+        JWT_SECRET: thisisadummysecretkeyforrunningtestsoncienvironment123456
+        URL_BE: http://localhost:8080
+        SUPABASE_SERVICE_ROLE_KEY: dummy-key
+        REDIS_HOST: localhost
+        redis.port: 6379
+        REDIS_USER: default
+        REDIS_PASSWORD: ""
       run: mvn clean verify
