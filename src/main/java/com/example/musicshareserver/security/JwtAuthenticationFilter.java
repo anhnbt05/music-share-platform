@@ -40,7 +40,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Long userId = Long.parseLong(claims.getSubject());
                 String role = claims.get("role", String.class);
 
-                // Fix: Robust handling of ROLE_ prefix
                 if (role != null) {
                     role = "ROLE_" + role.replaceAll("^(ROLE_)+", "");
                 }
@@ -59,7 +58,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         .setAuthentication(authentication);
 
             } catch (Exception e) {
-                // token sai → bỏ qua, để Spring xử lý
             }
         }
 
