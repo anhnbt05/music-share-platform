@@ -41,7 +41,6 @@ public class StorageServiceImpl implements StorageService {
 
             String bucket = options.getBucket();
 
-            // Upload using Feign
             supabaseClient.uploadFile(
                     "Bearer " + serviceRoleKey,
                     bucket,
@@ -50,7 +49,6 @@ public class StorageServiceImpl implements StorageService {
                     file.getBytes()
             );
 
-            // PUBLIC URL
             String publicUrl = supabaseUrl
                     + "/storage/v1/object/public/"
                     + bucket
@@ -93,8 +91,6 @@ public class StorageServiceImpl implements StorageService {
             return false;
         }
     }
-
-    /* ================= PRIVATE METHODS ================= */
 
     private void validateFile(MultipartFile file, UploadOptions options) {
         if (file == null || file.isEmpty()) {

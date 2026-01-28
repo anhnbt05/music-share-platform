@@ -70,7 +70,6 @@ public class MusicServiceImpl implements MusicService {
                     Join<AlbumTrack, Album> albums = albumTracks.join("album", JoinType.LEFT);
                     searchPredicate = cb.like(cb.lower(albums.get("title")), search);
                 } else {
-                    // OR condition for all
                     Predicate titleMatch = cb.like(cb.lower(root.get("title")), search);
                     Predicate genreMatch = cb.like(cb.lower(root.get("genre")), search);
 

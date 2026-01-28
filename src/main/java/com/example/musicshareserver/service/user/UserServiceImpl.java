@@ -50,9 +50,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Playlist> getUserPlaylists(Long userId) {
-        // Note: The NestJS implementation includes nested relations (tracks, music, artists)
-        // JPA will lazy load these, but for performance in a real app created properly, avoid N+1.
-        // For direct migration of logic:
         return playlistRepository.findByUserIdOrderByCreationDateDesc(userId);
     }
 
@@ -244,7 +241,7 @@ public class UserServiceImpl implements UserService {
                 targetExists = userRepository.findByIdAndIsDeletedFalse(dto.getTargetId()).isPresent();
                 break;
             case "COMMENT":
-                targetExists = false; // Implement comment check if needed
+                targetExists = false; 
                 break;
             case "PLAYLIST":
                 targetExists = playlistRepository.existsById(dto.getTargetId());
